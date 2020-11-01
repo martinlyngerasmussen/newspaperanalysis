@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr  6 15:03:00 2020
+
+@author: AAzqueta
+"""
+
+from textblob import TextBlob
+import requests
+from bs4 import BeautifulSoup # 
+from sys import argv
+
+
+# we will create a class to run our analysis
+class Analysis:
+    def __init__(self, term): #when the class is initialize, it stores any thing in this class 
+            self.term = term
+            self.subjectivity = 0
+            self.sentiment = 0
+            
+            self.url = 'https://google.com/search?q={0}&source=lnms&tbm=nws'.format(self.term)
+            
+            
+    def run (self):
+            response = requests.get(self.url)
+            #print(response.text)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            headline_results = soup.find_all('div', class_='st')
+            for h in headline_results:
+                    blob = TextBlob(h.get_text())
+                    self.sentiment += blob.sentiment.polarity / len(headline_results)
+                    self.subjectivity += blob.sentiment.subjectivity / len(headline_results)
+
+a = Analysis(argv[1])
+a.run()
+print(a.term, 'Subjectivity: ' ,a.subjectivity, 'Sentiment: ', a.sentiment)
+
